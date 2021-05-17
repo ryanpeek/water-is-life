@@ -115,10 +115,11 @@ ggplot(data=df_drought) +
   scale_color_viridis_c("Severity") +
   scale_y_continuous(breaks = c(seq(1941, 2021, 4))) +
   theme_classic() +
-  labs(title="Start and end of significant droughts",
+  labs(title="Start and end of significant droughts", y="Water Year",
+       x="Day of Water Year",
        subtitle="Severity of drought based on 30-day window using a flow duration curve (Beyene et al. 2014)")
 # save
-ggsave(plot_cov, filename = "output/figure_drought_periods.png",
+ggsave(filename = "output/figure_drought_periods.png",
        dpi=200, width=10, height = 6.5)
 
 # flow
@@ -178,13 +179,13 @@ ggsave(filename = "output/figure_flow_ribbon_wy_facet.png",
 df_ts %>% filter(Sac_WY_type=="C") %>%
   ggplot() +
   geom_ribbon(aes(x=hdoy, ymax=Flow, ymin=0,
-                  fill=Sac_WY_type, group=hyear),
+                  group=hyear), fill="#FDE725FF",
               alpha=0.5, lwd=0.3, show.legend = FALSE) +
-  geom_line(aes(x=hdoy, y=Flow, color=Sac_WY_type, group=hyear),
-            alpha=0.5, lwd=0.3, show.legend=FALSE) +
+  geom_line(aes(x=hdoy, y=Flow, group=hyear), color="gray40",
+            alpha=0.4, lwd=0.3, show.legend=FALSE) +
   # current year:
   geom_line(data=df_ts %>% filter(hyear>=year(Sys.Date())),
-            aes(x=hdoy, y=Flow), color="skyblue", lwd=0.9) +
+            aes(x=hdoy, y=Flow), color="black", lwd=0.9) +
   ggrepel::geom_label_repel(data=df_ts %>% filter(hyear>=year(Sys.Date())) %>%
                               slice_max(hdoy, n = 1),
                             aes(x=hdoy, y=Flow, label="Current date"),
@@ -197,7 +198,7 @@ df_ts %>% filter(Sac_WY_type=="C") %>%
   scale_color_viridis_d("Water \nYear Type") +
   scale_fill_viridis_d("Water \nYear Type") +
   labs(title=glue("Flow from USGS: {unique(df_clean$site_no)}"),
-       subtitle = glue("{min(df_clean$water_year)}-{max(df_clean$water_year)}"),
+       subtitle = glue("Only Critically Dry Years: {min(df_clean$water_year)}-{max(df_clean$water_year)}"),
        caption=glue("Updated {Sys.Date()}"),
        x="Day of Water Year", y="Flow (cms)")
 
