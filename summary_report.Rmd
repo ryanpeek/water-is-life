@@ -1,0 +1,59 @@
+---
+title: "Simple Water Status Report"
+output: html_document
+params:
+  gage: "11427000"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(here)
+library(knitr)
+```
+
+## Status Report for Gage 11427000
+
+Data was updated on `r Sys.Date()`. Daily flow data was downloaded from USGS using the `{dataRetrieval}` package in `R`.
+
+```{r updateData, echo=FALSE, include=FALSE, message=FALSE,results='hide'}
+
+# run to update data
+source(here("code/01_download_data.R"))
+get_daily_flow(params$gage)
+
+```
+
+```{r updatViz, echo=FALSE, include=FALSE, message=FALSE,results='hide'}
+
+# run to update data
+source(here("code/02_clean_visualize.R"))
+
+```
+
+
+### Hydrograph of All Water Years
+
+
+```{r allyrs, eval=T, echo=F}
+
+include_graphics(here("output/figure_flow_spaghetti_plot_all.png"))
+
+```
+
+### Hydrograph By Water Year Type
+
+
+```{r wytype, eval=T, echo=F}
+
+include_graphics(here("output/figure_flow_ribbon_wy_facet.png"))
+
+```
+
+### Hydrograph By Current Water Year Type
+
+
+```{r currwytp, eval=T, echo=F}
+
+include_graphics(here("output/figure_flow_ribbon_wy_just_current.png"))
+
+```
