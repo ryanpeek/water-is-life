@@ -1,8 +1,8 @@
 # clean data and visualize
 
-library(tidyverse)
+suppressPackageStartupMessages(library(tidyverse))
 library(glue)
-library(lubridate)
+suppressPackageStartupMessages(library(lubridate))
 
 
 # Get Data ----------------------------------------------------------------
