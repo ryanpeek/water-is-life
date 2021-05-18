@@ -77,7 +77,7 @@ df_cov <- left_join(df_cov, wyt %>% select(WY, Sac_WY_type), by=c("hYear"="WY"))
 # VISUALIZE ---------------------------------------------------------------
 
 # plot all with current year:
-ggplot(data=df_ts) +
+p1<-ggplot(data=df_ts) +
   #geom_line(aes(x=hdoy, y=Flow, color="Sac_WY_type"), alpha=0.8, lwd=0.3) +
   geom_line(aes(x=hdoy, y=Flow, group=hyear), color="gray", alpha=0.8, lwd=0.3) +
   geom_line(data=df_ts %>% filter(hyear>=year(Sys.Date())),
@@ -91,12 +91,12 @@ ggplot(data=df_ts) +
        caption=glue("Updated {Sys.Date()}"),
        x="Day of Water Year", y="Flow (cms)")
 # save
-ggsave(filename = "output/figure_flow_spaghetti_plot_all.png",
+ggsave(p1, filename = "output/figure_flow_spaghetti_plot_all.png",
        dpi=200, width=11, height = 8)
 
 
 # Facet by wy type:
-ggplot(data=df_ts) +
+p2 <- ggplot(data=df_ts) +
   geom_ribbon(data=df_ts,
               aes(x=hdoy, ymax=Flow, ymin=0,
                   fill=Sac_WY_type, group=hyear),
@@ -121,12 +121,12 @@ ggplot(data=df_ts) +
        x="Day of Water Year", y="Flow (cms)") +
   facet_wrap(vars(Sac_WY_type), scales = "free_y")
 
-ggsave(filename = "output/figure_flow_ribbon_wy_facet.png",
+ggsave(p2, filename = "output/figure_flow_ribbon_wy_facet.png",
        dpi=200, width=11, height = 8)
 
 
 # Compare within same wy type:
-df_ts %>% filter(Sac_WY_type=="C") %>%
+p3 <- df_ts %>% filter(Sac_WY_type=="C") %>%
   ggplot() +
   geom_ribbon(aes(x=hdoy, ymax=Flow, ymin=0,
                   group=hyear), fill="#FDE725FF",
@@ -152,5 +152,5 @@ df_ts %>% filter(Sac_WY_type=="C") %>%
        caption=glue("Updated {Sys.Date()}"),
        x="Day of Water Year", y="Flow (cms)")
 
-ggsave(filename = "output/figure_flow_ribbon_wy_just_current.png",
+ggsave(p3, filename = "output/figure_flow_ribbon_wy_just_current.png",
        dpi=200, width=11, height = 8)
