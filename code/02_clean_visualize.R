@@ -42,7 +42,7 @@ df_clean <- df %>%
   ungroup()
 
 # Get Water Year Types
-wyt <- read_csv("data_raw/WYT_1906-2021.csv") %>%
+wyt <- read_csv("data_raw/WYT_1906-2022.csv") %>%
   mutate(Sac_WY_type=factor(Sac_WY_type, levels=c("W","AN","BN","D","C")))
 
 
@@ -80,9 +80,9 @@ df_cov <- left_join(df_cov, wyt %>% select(WY, Sac_WY_type), by=c("hYear"="WY"))
 p1<-ggplot(data=df_ts) +
   #geom_line(aes(x=hdoy, y=Flow, color="Sac_WY_type"), alpha=0.8, lwd=0.3) +
   geom_line(aes(x=hdoy, y=Flow, group=hyear), color="gray", alpha=0.8, lwd=0.3) +
-  geom_line(data=df_ts %>% filter(hyear>=year(Sys.Date())),
+  geom_line(data=df_ts %>% filter(hyear>=year(Sys.Date())+1),
             aes(x=hdoy, y=Flow), color="steelblue", lwd=2) +
-  geom_point(data=df_ts %>% filter(hyear>=year(Sys.Date())) %>%
+  geom_point(data=df_ts %>% filter(hyear>=year(Sys.Date())+1) %>%
                slice_max(hdoy, n = 1),
              aes(x=hdoy, y=Flow), pch=21, size=4, fill="orange") +
   theme_classic() +
@@ -90,6 +90,7 @@ p1<-ggplot(data=df_ts) +
                   {min(df_clean$water_year)}-{max(df_clean$water_year)}"),
        caption=glue("Updated {Sys.Date()}"),
        x="Day of Water Year", y="Flow (cms)")
+#p1
 # save
 ggsave(p1, filename = "output/figure_flow_spaghetti_plot_all.png",
        dpi=200, width=11, height = 8)
@@ -102,14 +103,14 @@ p2 <- ggplot(data=df_ts) +
                   fill=Sac_WY_type, group=hyear),
               alpha=0.5, lwd=0.3, show.legend = FALSE) +
   # current year
-  geom_line(data=df_ts %>% filter(hyear>=year(Sys.Date())),
+  geom_line(data=df_ts %>% filter(hyear>=year(Sys.Date())+1),
             aes(x=hdoy, y=Flow), color="black", lwd=0.8) +
-  ggrepel::geom_label_repel(data=df_ts %>% filter(hyear>=year(Sys.Date())) %>%
+  ggrepel::geom_label_repel(data=df_ts %>% filter(hyear>=year(Sys.Date())+1) %>%
                           slice_max(hdoy, n = 1),
                         aes(x=hdoy, y=Flow, label="Current date"),
                         box.padding = 2.5, segment.alpha=0.2,
                         min.segment.length = 0.01, nudge_x = 5, nudge_y = 2)+
-  geom_point(data=df_ts %>% filter(hyear>=year(Sys.Date())) %>%
+  geom_point(data=df_ts %>% filter(hyear>=year(Sys.Date())+1) %>%
                slice_max(hdoy, n = 1),
              aes(x=hdoy, y=Flow), pch=21, size=4, fill="orange") +
   theme_classic() +
@@ -120,13 +121,13 @@ p2 <- ggplot(data=df_ts) +
        caption=glue("Updated {Sys.Date()}"),
        x="Day of Water Year", y="Flow (cms)") +
   facet_wrap(vars(Sac_WY_type), scales = "free_y")
-
+p2
 ggsave(p2, filename = "output/figure_flow_ribbon_wy_facet.png",
        dpi=200, width=11, height = 8)
 
 
 # Compare within same wy type:
-p3 <- df_ts %>% filter(Sac_WY_type=="C") %>%
+p3 <- df_ts %>% filter(Sac_WY_type=="AN") %>%
   ggplot() +
   geom_ribbon(aes(x=hdoy, ymax=Flow, ymin=0,
                   group=hyear), fill="#FDE725FF",
@@ -134,23 +135,23 @@ p3 <- df_ts %>% filter(Sac_WY_type=="C") %>%
   geom_line(aes(x=hdoy, y=Flow, group=hyear), color="gray40",
             alpha=0.4, lwd=0.3, show.legend=FALSE) +
   # current year:
-  geom_line(data=df_ts %>% filter(hyear>=year(Sys.Date())),
+  geom_line(data=df_ts %>% filter(hyear>=year(Sys.Date())+1),
             aes(x=hdoy, y=Flow), color="black", lwd=0.9) +
-  ggrepel::geom_label_repel(data=df_ts %>% filter(hyear>=year(Sys.Date())) %>%
+  ggrepel::geom_label_repel(data=df_ts %>% filter(hyear>=year(Sys.Date())+1) %>%
                               slice_max(hdoy, n = 1),
                             aes(x=hdoy, y=Flow, label="Current date"),
                             box.padding = 2.5, segment.alpha=0.5,
                             min.segment.length = 0.01, nudge_x = 5, nudge_y = 2) +
-  geom_point(data=df_ts %>% filter(hyear>=year(Sys.Date())) %>%
+  geom_point(data=df_ts %>% filter(hyear>=year(Sys.Date())+1) %>%
                slice_max(hdoy, n = 1),
              aes(x=hdoy, y=Flow), pch=21, size=4, fill="orange") +
   theme_classic() +
   scale_color_viridis_d("Water \nYear Type") +
   scale_fill_viridis_d("Water \nYear Type") +
   labs(title=glue("Flow from USGS: {unique(df_clean$site_no)}"),
-       subtitle = glue("Only Critically Dry Years: {min(df_clean$water_year)}-{max(df_clean$water_year)}"),
+       subtitle = glue("Year Range: {min(df_clean$water_year)}-{max(df_clean$water_year)}"),
        caption=glue("Updated {Sys.Date()}"),
        x="Day of Water Year", y="Flow (cms)")
-
+#p3
 ggsave(p3, filename = "output/figure_flow_ribbon_wy_just_current.png",
        dpi=200, width=11, height = 8)
