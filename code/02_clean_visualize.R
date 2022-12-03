@@ -78,10 +78,20 @@ df_cov <- left_join(df_cov, wyt %>% select(WY, Sac_WY_type), by=c("hYear"="WY"))
 
 # plot all with current year:
 p1<-ggplot(data=df_ts) +
-  #geom_line(aes(x=hdoy, y=Flow, color="Sac_WY_type"), alpha=0.8, lwd=0.3) +
+
   geom_line(aes(x=hdoy, y=Flow, group=hyear), color="gray", alpha=0.8, lwd=0.3) +
   geom_line(data=df_ts %>% filter(hyear>=year(Sys.Date())+1),
             aes(x=hdoy, y=Flow), color="steelblue", lwd=2) +
+  # add drought years
+  geom_line(data=df_ts %>% filter(hyear==2017),
+            aes(x=hdoy, y=Flow), color="darkblue", lwd=0.5) +
+  geom_line(data=df_ts %>% filter(hyear==2020),
+            aes(x=hdoy, y=Flow), color="red4", lwd=0.5) +
+  geom_line(data=df_ts %>% filter(hyear==2021),
+            aes(x=hdoy, y=Flow), color="maroon", lwd=0.5) +
+  geom_line(data=df_ts %>% filter(hyear==2022),
+            aes(x=hdoy, y=Flow), color="brown3", lwd=0.5) +
+  # current date point
   geom_point(data=df_ts %>% filter(hyear>=year(Sys.Date())+1) %>%
                slice_max(hdoy, n = 1),
              aes(x=hdoy, y=Flow), pch=21, size=4, fill="orange") +
@@ -155,3 +165,42 @@ p3 <- df_ts %>% filter(Sac_WY_type=="AN") %>%
 #p3
 ggsave(p3, filename = "output/figure_flow_ribbon_wy_just_current.png",
        dpi=200, width=11, height = 8)
+
+
+# Drought Types -----------------------------------------------------------
+
+# look at drought severity:
+df_drought <- FlowScreen::dr.seas(df_ts, WinSize = 30, Season = 1:12)
+df_drought$hyear <- year(attr(df_drought$StartDay, "times"))
+
+# drought metrics
+ggplot(data=df_drought) +
+  geom_linerange(aes(xmax=EndDay, xmin=StartDay, y=hyear, color=Severity), lwd=2) +
+  geom_point(aes(x=StartDay, y=hyear), pch=21, size=2, fill="red2", alpha=0.7) +
+  geom_point(aes(x=EndDay, y=hyear), pch=21, size=3, fill="maroon4") +
+  scale_color_viridis_c("Severity", option = "A") +
+  scale_y_continuous(breaks = c(seq(1941, 2021, 4))) +
+  theme_classic() +
+  labs(title="Start and end of significant droughts", y="Water Year",
+       x="Day of Water Year",
+       subtitle="Severity of drought based on 30-day window using a flow duration curve (Beyene et al. 2014)")
+# save
+#ggsave(filename = "output/figure_drought_periods.png",
+#       dpi=200, width=10, height = 6.5)
+
+# center of volume plot
+(plot_cov <-
+    ggplot() +
+    geom_point(data=df_cov, aes(y=hYear, x=Q50),
+               pch=21, size=3, alpha=0.5,
+               color="orange", fill="gray70",show.legend=TRUE) +
+    geom_vline(xintercept=150, color="steelblue", lty=2) +
+    scale_fill_viridis_d("Water Year\n Type") +
+    scale_color_viridis_d("Water Year\n Type") +
+    scale_y_continuous(breaks = seq(1940, year(Sys.Date()),4)) +
+    hrbrthemes::theme_ft_rc() +
+    labs(subtitle = "NFA Center of Volume",
+         y="Water Year", x="Day of year for 50% of tot. ann streamflow")
+)
+
+
