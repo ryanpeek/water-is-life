@@ -8,7 +8,7 @@ suppressPackageStartupMessages(library(lubridate))
 # Get Data ----------------------------------------------------------------
 
 # list csv files in dir
-files <- fs::dir_ls("data_raw", glob = "*csv")
+files <- fs::dir_ls("data_raw", glob = "*gz")
 
 # get file info to identify most recent
 files_info <- fs::dir_info("data_raw",

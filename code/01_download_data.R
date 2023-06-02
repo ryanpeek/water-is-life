@@ -27,7 +27,7 @@ get_daily_flow <- function(gage_no){
   # save out
   write_csv(dat,
             file =
-              glue("data_raw/nfa_updated_{Sys.Date()}.csv"))
+              glue("data_raw/nfa_updated_{Sys.Date()}.csv.gz"))
 }
 
 # RUN with:
