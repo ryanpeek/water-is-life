@@ -80,8 +80,10 @@ df_cov <- left_join(df_cov, wyt %>% select(WY, Sac_WY_type), by=c("hYear"="WY"))
 p1<-ggplot(data=df_ts) +
 
   geom_line(aes(x=hdoy, y=Flow, group=hyear), color="gray", alpha=0.8, lwd=0.3) +
-  geom_line(data=df_ts %>% filter(hyear>=year(Sys.Date())+1),
-            aes(x=hdoy, y=Flow), color="steelblue", lwd=2) +
+  geom_line(data=df_ts %>% filter(hyear>=year(Sys.Date())),
+            aes(x=hdoy, y=Flow), color="steelblue", lwd=1) +
+  geom_point(data=df_ts %>% filter(Date==last(Date)),
+            aes(x=hdoy, y=Flow), color="white", pch=21, fill="black", size=5) +
   # add drought years
   geom_line(data=df_ts %>% filter(hyear==2017),
             aes(x=hdoy, y=Flow), color="darkblue", lwd=0.5) +
@@ -98,7 +100,7 @@ p1<-ggplot(data=df_ts) +
   theme_classic() +
   labs(title=glue("Flow from USGS: {unique(df_clean$site_no)},
                   {min(df_clean$water_year)}-{max(df_clean$water_year)}"),
-       caption=glue("Updated {Sys.Date()}"),
+       caption=glue("Updated {Sys.Date()}: Current value is black dot"),
        x="Day of Water Year", y="Flow (cms)")
 #p1
 # save
